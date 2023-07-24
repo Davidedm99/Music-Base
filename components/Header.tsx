@@ -5,6 +5,10 @@ import {RxCaretLeft, RxCaretRight} from "react-icons/rx";
 import {HiHome} from "react-icons/hi";
 import {BiSearch} from "react-icons/bi";
 import Button from "@/components/Button";
+import useAuthModal from "@/hooks/useAuthModal";
+import {useSupabaseClient} from "@supabase/auth-helpers-react";
+import {useUser} from "@/hooks/useUser";
+import {FaUserAlt} from "react-icons/fa";
 
 interface HeaderProps {
     children: React.ReactNode;
@@ -16,9 +20,21 @@ const Header: React.FC<HeaderProps> = ({
                                            className
                                        }) => {
 
+    const authModal = useAuthModal();
     const router = useRouter();
-    const handleLogout = () => {
-        //imagine what this does
+
+    const supabaseClient = useSupabaseClient();
+    //extract user from user Hook
+    const {user} = useUser();
+
+    const handleLogout = async () => {
+        const {error} = await supabaseClient.auth.signOut();
+        //TODO: reset playing song
+        router.refresh();
+
+        if (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -52,21 +68,33 @@ const Header: React.FC<HeaderProps> = ({
 
                 {/*right side for login and user info*/}
                 <div className="flex justify-between items-center gap-x-3">
-                    {/*dynamic o+content based if the user is logged in or not*/}
-                    <>
-                        <div>
-                            <Button className="bg-transparent text-neutral-300 font-medium"
-                                    onClick={() => {}}>
-                                Sign Up
-                            </Button>
-                        </div>
-                        <div>
+                    {/*dynamic content based if the user is logged in or not*/}
+                    {user ? (
+                        <div className="flex gap-x-4 items-center">
                             <Button className="bg-white px-6 py-2"
-                                    onClick={() => {}}>
-                                Log In
+                                    onClick={handleLogout}>
+                                LogOut
+                            </Button>
+                            <Button className="bg-white"
+                                    onClick={() => router.push('/account')}>
+                                <FaUserAlt />
                             </Button>
                         </div>
-                    </>
+                    ) : (
+                        <>
+                            <div>
+                                <Button className="bg-transparent text-neutral-300 font-medium"
+                                        onClick={authModal.onOpen}>
+                                    Sign Up
+                                </Button>
+                            </div>
+                            <div>
+                                <Button className="bg-white px-6 py-2"
+                                        onClick={authModal.onOpen}>
+                                    Log In
+                                </Button>
+                            </div>
+                        </>)}
                 </div>
             </div>
             {children}

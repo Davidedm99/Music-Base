@@ -1,26 +1,25 @@
 "use client";
 
- import {useEffect, useState} from "react";
-import Modal from "@/components/Modal";
+import {useEffect, useState} from "react";
+import AuthModal from "@/components/AuthModal";
 
 const ModalProvider = () => {
-     const [isMounted, setIsMounted] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
-     useEffect(() => {
-         setIsMounted(true);
-     }, []);
+    //prevent error from client if we are in server side
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-     if (!isMounted){
-         return null;
-     }
+    if (!isMounted) {
+        return null;
+    }
 
-     return (
-         <>
-             <Modal title="Test Modal!" description="Test descr" isOpen onChange={() => {}}>
-                 Test Children!
-             </Modal>
-         </>
-     );
- };
+    return (
+        <>
+            <AuthModal />
+        </>
+    );
+};
 
- export default ModalProvider;
+export default ModalProvider;
